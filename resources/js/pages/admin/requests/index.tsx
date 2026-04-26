@@ -1,4 +1,5 @@
 import { Head } from '@inertiajs/react';
+import { Eye } from 'lucide-react';
 import { useState } from 'react';
 import { OfferCard } from '@/components/maintenance/offer-card';
 import { RequestDetailsCard } from '@/components/maintenance/request-details-card';
@@ -6,6 +7,7 @@ import { RequestPriorityBadge } from '@/components/maintenance/request-priority-
 import { RequestStatusBadge } from '@/components/maintenance/request-status-badge';
 import { StatusTimeline } from '@/components/maintenance/status-timeline';
 import { PageHeader } from '@/components/shared/page-header';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
     Dialog,
@@ -164,11 +166,14 @@ export default function AdminRequestsIndex({
                                             <TableCell>{new Date(request.created_at).toLocaleDateString()}</TableCell>
                                             <TableCell className="text-right">
                                                 <Dialog>
-                                                    <DialogTrigger className="text-sm underline">
-                                                        View
+                                                    <DialogTrigger asChild>
+                                                        <Button size="icon" variant="outline">
+                                                            <Eye />
+                                                            <span className="sr-only">View request details</span>
+                                                        </Button>
                                                     </DialogTrigger>
-                                                    <DialogContent className="max-w-4xl">
-                                                        <DialogHeader>
+                                                    <DialogContent className="max-h-[90vh] max-w-4xl overflow-hidden p-0 sm:max-w-4xl">
+                                                        <DialogHeader className="border-b px-6 pt-6 pb-4">
                                                             <DialogTitle>
                                                                 Request #{request.id} Details
                                                             </DialogTitle>
@@ -177,7 +182,8 @@ export default function AdminRequestsIndex({
                                                             </DialogDescription>
                                                         </DialogHeader>
 
-                                                        <div className="space-y-6">
+                                                        {/* Keep the dialog inside the screen and scroll only the body. */}
+                                                        <div className="max-h-[calc(90vh-88px)] space-y-6 overflow-y-auto px-6 pb-6">
                                                             <RequestDetailsCard
                                                                 request={request}
                                                                 showUser
