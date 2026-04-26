@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Offer extends Model
 {
+    protected $table = 'offers';
+
     /**
      * @var list<string>
      */

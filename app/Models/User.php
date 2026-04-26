@@ -44,11 +44,6 @@ class User extends Authenticatable
         'name',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -64,9 +59,14 @@ class User extends Authenticatable
         return $this->password_hash;
     }
 
+    /**
+     * FIX: Prevent null return causing TypeError in tests/Inertia
+     */
     protected function name(): Attribute
     {
-        return Attribute::get(fn (): string => $this->full_name);
+        return Attribute::get(function ($value, $attributes) {
+            return $attributes['full_name'] ?? '';
+        });
     }
 
     public function maintenanceRequestsCreated(): HasMany
