@@ -18,6 +18,7 @@ test('new users can register', function () {
         'full_name' => 'Test User',
         'email' => 'test@example.com',
         'phone' => '+15550000001',
+        'role' => 'client',
         'password' => 'password',
         'password_confirmation' => 'password',
     ]);
@@ -29,6 +30,6 @@ test('new users can register', function () {
 
     expect($user->full_name)->toBe('Test User');
     expect($user->phone)->toBe('+15550000001');
-    expect($user->role)->toBe('user');
+    expect($user->role)->toBe('client');
     expect($user->is_active)->toBeTrue();
 });

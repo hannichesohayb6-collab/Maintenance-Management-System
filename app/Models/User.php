@@ -60,13 +60,11 @@ class User extends Authenticatable
     }
 
     /**
-     * FIX: Prevent null return causing TypeError in tests/Inertia
+     * Keep Breeze-compatible name props backed by the app's full_name column.
      */
     protected function name(): Attribute
     {
-        return Attribute::get(function ($value, $attributes) {
-            return $attributes['full_name'] ?? '';
-        });
+        return Attribute::get(fn (mixed $value, array $attributes): string => $attributes['full_name'] ?? '');
     }
 
     public function maintenanceRequestsCreated(): HasMany

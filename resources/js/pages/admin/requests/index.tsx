@@ -1,7 +1,11 @@
 import { Head } from '@inertiajs/react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
+import { OfferCard } from '@/components/maintenance/offer-card';
+import { RequestDetailsCard } from '@/components/maintenance/request-details-card';
+import { RequestPriorityBadge } from '@/components/maintenance/request-priority-badge';
+import { RequestStatusBadge } from '@/components/maintenance/request-status-badge';
+import { StatusTimeline } from '@/components/maintenance/status-timeline';
 import { PageHeader } from '@/components/shared/page-header';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import {
     Dialog,
@@ -31,6 +35,8 @@ import { index } from '@/routes/admin/requests';
 type AdminRequest = {
     id: number;
     title: string;
+    description: string;
+    location: string;
     priority: string;
     status: string;
     created_at: string;
@@ -48,6 +54,9 @@ type AdminRequest = {
         estimated_cost: string | number;
         estimated_days: number;
         status: string;
+        technician?: {
+            full_name: string;
+        } | null;
     } | null;
     status_history?: Array<{
         id: number;
@@ -73,14 +82,12 @@ export default function AdminRequestsIndex({
     const [statusFilter, setStatusFilter] = useState<string>('all');
     const [priorityFilter, setPriorityFilter] = useState<string>('all');
 
-    const filteredRequests = useMemo(() => {
-        return requests.data.filter((request) => {
-            const statusMatches = statusFilter === 'all' || request.status === statusFilter;
-            const priorityMatches = priorityFilter === 'all' || request.priority === priorityFilter;
+    const filteredRequests = requests.data.filter((request) => {
+        const statusMatches = statusFilter === 'all' || request.status === statusFilter;
+        const priorityMatches = priorityFilter === 'all' || request.priority === priorityFilter;
 
-            return statusMatches && priorityMatches;
-        });
-    }, [priorityFilter, requests.data, statusFilter]);
+        return statusMatches && priorityMatches;
+    });
 
     return (
         <>
@@ -100,10 +107,7 @@ export default function AdminRequestsIndex({
                         <SelectContent>
                             <SelectItem value="all">All Statuses</SelectItem>
                             <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="under_review">Under Review</SelectItem>
-                            <SelectItem value="offer_sent">Offer Sent</SelectItem>
-                            <SelectItem value="offer_accepted">Offer Accepted</SelectItem>
-                            <SelectItem value="offer_rejected">Offer Rejected</SelectItem>
+                            <SelectItem value="technician_assigned">Technician Assigned</SelectItem>
                             <SelectItem value="in_progress">In Progress</SelectItem>
                             <SelectItem value="completed">Completed</SelectItem>
                             <SelectItem value="cancelled">Cancelled</SelectItem>
@@ -152,10 +156,10 @@ export default function AdminRequestsIndex({
                                             <TableCell>{request.user?.full_name ?? 'N/A'}</TableCell>
                                             <TableCell>{request.assigned_technician?.full_name ?? 'Unassigned'}</TableCell>
                                             <TableCell>
-                                                <Badge>{request.status}</Badge>
+                                                <RequestStatusBadge status={request.status} />
                                             </TableCell>
                                             <TableCell>
-                                                <Badge variant="outline">{request.priority}</Badge>
+                                                <RequestPriorityBadge priority={request.priority} />
                                             </TableCell>
                                             <TableCell>{new Date(request.created_at).toLocaleDateString()}</TableCell>
                                             <TableCell className="text-right">
@@ -163,7 +167,7 @@ export default function AdminRequestsIndex({
                                                     <DialogTrigger className="text-sm underline">
                                                         View
                                                     </DialogTrigger>
-                                                    <DialogContent className="max-w-2xl">
+                                                    <DialogContent className="max-w-4xl">
                                                         <DialogHeader>
                                                             <DialogTitle>
                                                                 Request #{request.id} Details
@@ -173,41 +177,16 @@ export default function AdminRequestsIndex({
                                                             </DialogDescription>
                                                         </DialogHeader>
 
-                                                        <div className="space-y-4">
-                                                            <div>
-                                                                <p className="font-medium">{request.title}</p>
-                                                                <p className="text-sm text-muted-foreground">
-                                                                    Status: {request.status} | Priority: {request.priority}
-                                                                </p>
-                                                            </div>
+                                                        <div className="space-y-6">
+                                                            <RequestDetailsCard
+                                                                request={request}
+                                                                showUser
+                                                                showTechnician
+                                                            />
 
-                                                            <div>
-                                                                <p className="text-sm font-medium">Latest Offer</p>
-                                                                {request.latest_offer ? (
-                                                                    <div className="mt-1 text-sm text-muted-foreground">
-                                                                        {request.latest_offer.offer_description} | $
-                                                                        {request.latest_offer.estimated_cost} |{' '}
-                                                                        {request.latest_offer.estimated_days} day(s)
-                                                                    </div>
-                                                                ) : (
-                                                                    <p className="mt-1 text-sm text-muted-foreground">
-                                                                        No offer yet.
-                                                                    </p>
-                                                                )}
-                                                            </div>
+                                                            <OfferCard offer={request.latest_offer ?? null} />
 
-                                                            <div>
-                                                                <p className="text-sm font-medium">History</p>
-                                                                <div className="mt-1 space-y-1">
-                                                                    {(request.status_history ?? []).slice(0, 5).map((entry) => (
-                                                                        <p key={entry.id} className="text-sm text-muted-foreground">
-                                                                            {entry.new_status} by{' '}
-                                                                            {entry.changedBy?.full_name ?? 'System'} on{' '}
-                                                                            {new Date(entry.changed_at).toLocaleString()}
-                                                                        </p>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
+                                                            <StatusTimeline items={request.status_history ?? []} />
                                                         </div>
                                                     </DialogContent>
                                                 </Dialog>

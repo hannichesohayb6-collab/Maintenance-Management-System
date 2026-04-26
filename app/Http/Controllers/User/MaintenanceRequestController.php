@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreMaintenanceRequestRequest;
 use App\Models\MaintenanceRequest;
 use App\Models\RequestStatusHistory;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -34,7 +33,7 @@ class MaintenanceRequestController extends Controller
         return Inertia::render('user/maintenance-requests/create');
     }
 
-    public function store(StoreMaintenanceRequestRequest $request): RedirectResponse
+    public function store(StoreMaintenanceRequestRequest $request)
     {
         $user = $request->user();
 
@@ -45,12 +44,13 @@ class MaintenanceRequestController extends Controller
                 'status' => 'pending',
             ]);
 
+            // Save the first status entry when the request is created.
             RequestStatusHistory::query()->create([
                 'request_id' => $maintenanceRequest->id,
                 'changed_by' => $user->id,
                 'old_status' => null,
                 'new_status' => 'pending',
-                'note' => 'Request created by user.',
+                'note' => 'Request created by client.',
                 'changed_at' => now(),
             ]);
         });
@@ -71,19 +71,23 @@ class MaintenanceRequestController extends Controller
 
         return Inertia::render('user/maintenance-requests/show', [
             'maintenanceRequest' => $maintenanceRequest,
-            'latestOffer' => $maintenanceRequest->offers->first(),
+            'offers' => $maintenanceRequest->offers,
             'statusHistory' => $maintenanceRequest->statusHistory,
         ]);
     }
 
-    public function acceptOffer(Request $request, MaintenanceRequest $maintenanceRequest): RedirectResponse
+    public function acceptOffer(Request $request, MaintenanceRequest $maintenanceRequest)
     {
         abort_unless($maintenanceRequest->user_id === $request->user()->id, 403);
 
-        DB::transaction(function () use ($request, $maintenanceRequest): void {
+        $validated = $request->validate([
+            'offer_id' => ['required', 'integer'],
+        ]);
+
+        DB::transaction(function () use ($request, $maintenanceRequest, $validated): void {
             $offer = $maintenanceRequest->offers()
+                ->whereKey($validated['offer_id'])
                 ->where('status', 'sent')
-                ->latest('id')
                 ->firstOrFail();
 
             $offer->update([
@@ -91,18 +95,29 @@ class MaintenanceRequestController extends Controller
                 'responded_at' => now(),
             ]);
 
+            // Close the other open offers after the client chooses one technician.
+            $maintenanceRequest->offers()
+                ->where('id', '!=', $offer->id)
+                ->where('status', 'sent')
+                ->update([
+                    'status' => 'rejected',
+                    'responded_at' => now(),
+                ]);
+
             $oldStatus = $maintenanceRequest->status;
 
             $maintenanceRequest->update([
-                'status' => 'offer_accepted',
+                'assigned_technician_id' => $offer->technician_id,
+                'status' => 'technician_assigned',
             ]);
 
+            // Save the moment the request becomes assigned.
             RequestStatusHistory::query()->create([
                 'request_id' => $maintenanceRequest->id,
                 'changed_by' => $request->user()->id,
                 'old_status' => $oldStatus,
-                'new_status' => 'offer_accepted',
-                'note' => 'User accepted the offer.',
+                'new_status' => 'technician_assigned',
+                'note' => 'Client accepted an offer.',
                 'changed_at' => now(),
             ]);
         });
@@ -110,34 +125,23 @@ class MaintenanceRequestController extends Controller
         return back();
     }
 
-    public function rejectOffer(Request $request, MaintenanceRequest $maintenanceRequest): RedirectResponse
+    public function rejectOffer(Request $request, MaintenanceRequest $maintenanceRequest)
     {
         abort_unless($maintenanceRequest->user_id === $request->user()->id, 403);
 
-        DB::transaction(function () use ($request, $maintenanceRequest): void {
+        $validated = $request->validate([
+            'offer_id' => ['required', 'integer'],
+        ]);
+
+        DB::transaction(function () use ($maintenanceRequest, $validated): void {
             $offer = $maintenanceRequest->offers()
+                ->whereKey($validated['offer_id'])
                 ->where('status', 'sent')
-                ->latest('id')
                 ->firstOrFail();
 
             $offer->update([
                 'status' => 'rejected',
                 'responded_at' => now(),
-            ]);
-
-            $oldStatus = $maintenanceRequest->status;
-
-            $maintenanceRequest->update([
-                'status' => 'offer_rejected',
-            ]);
-
-            RequestStatusHistory::query()->create([
-                'request_id' => $maintenanceRequest->id,
-                'changed_by' => $request->user()->id,
-                'old_status' => $oldStatus,
-                'new_status' => 'offer_rejected',
-                'note' => 'User rejected the offer.',
-                'changed_at' => now(),
             ]);
         });
 

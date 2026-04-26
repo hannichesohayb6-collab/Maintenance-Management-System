@@ -5,14 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\MaintenanceRequest;
 use App\Models\Offer;
 use App\Models\User;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request): Response|RedirectResponse
+    public function index(Request $request)
     {
         /** @var User|null $user */
         $user = $request->user();
@@ -21,7 +19,7 @@ class DashboardController extends Controller
             return redirect()->route('login');
         }
 
-        if ($user->role === 'user') {
+        if ($user->role === 'client') {
             $requests = MaintenanceRequest::query()
                 ->where('user_id', $user->id);
 
@@ -50,7 +48,7 @@ class DashboardController extends Controller
 
         if ($user->role === 'admin') {
             return Inertia::render('admin/dashboard', [
-                'totalUsers' => User::query()->where('role', 'user')->count(),
+                'totalUsers' => User::query()->where('role', 'client')->count(),
                 'totalTechnicians' => User::query()->where('role', 'technician')->count(),
                 'totalRequests' => MaintenanceRequest::query()->count(),
                 'completedRequests' => MaintenanceRequest::query()

@@ -1,15 +1,7 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
+import { RequestTable } from '@/components/maintenance/request-table';
 import { PageHeader } from '@/components/shared/page-header';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { myTasks } from '@/routes/technician';
 import { show } from '@/routes/technician/requests';
@@ -19,61 +11,19 @@ type TaskRow = {
     title: string;
     priority: string;
     status: string;
+    created_at?: string;
     user?: {
         id: number;
         full_name: string;
-    };
+    } | null;
 };
 
-function TaskTable({ items }: { items: TaskRow[] }) {
-    return (
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>User</TableHead>
-                    <TableHead>Priority</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {items.length === 0 ? (
-                    <TableRow>
-                        <TableCell colSpan={5} className="text-center text-muted-foreground">
-                            No tasks found.
-                        </TableCell>
-                    </TableRow>
-                ) : (
-                    items.map((task) => (
-                        <TableRow key={task.id}>
-                            <TableCell>{task.title}</TableCell>
-                            <TableCell>{task.user?.full_name ?? 'N/A'}</TableCell>
-                            <TableCell>
-                                <Badge variant="outline">{task.priority}</Badge>
-                            </TableCell>
-                            <TableCell>
-                                <Badge>{task.status}</Badge>
-                            </TableCell>
-                            <TableCell className="text-right">
-                                <Link href={show(task.id)} className="text-sm underline">
-                                    View
-                                </Link>
-                            </TableCell>
-                        </TableRow>
-                    ))
-                )}
-            </TableBody>
-        </Table>
-    );
-}
-
 export default function TechnicianMyTasks({
-    acceptedOrUnderReview,
+    assignedTasks,
     inProgress,
     completed,
 }: {
-    acceptedOrUnderReview: TaskRow[];
+    assignedTasks: TaskRow[];
     inProgress: TaskRow[];
     completed: TaskRow[];
 }) {
@@ -89,10 +39,10 @@ export default function TechnicianMyTasks({
 
                 <Card>
                     <CardContent className="pt-6">
-                        <Tabs defaultValue="under-review" className="space-y-4">
+                        <Tabs defaultValue="assigned" className="space-y-4">
                             <TabsList>
-                                <TabsTrigger value="under-review">
-                                    Under Review ({acceptedOrUnderReview.length})
+                                <TabsTrigger value="assigned">
+                                    Assigned ({assignedTasks.length})
                                 </TabsTrigger>
                                 <TabsTrigger value="in-progress">
                                     In Progress ({inProgress.length})
@@ -102,14 +52,29 @@ export default function TechnicianMyTasks({
                                 </TabsTrigger>
                             </TabsList>
 
-                            <TabsContent value="under-review">
-                                <TaskTable items={acceptedOrUnderReview} />
+                            <TabsContent value="assigned">
+                                <RequestTable
+                                    requests={assignedTasks}
+                                    showUser
+                                    emptyMessage="No tasks found."
+                                    detailsHref={(id) => show(id).url}
+                                />
                             </TabsContent>
                             <TabsContent value="in-progress">
-                                <TaskTable items={inProgress} />
+                                <RequestTable
+                                    requests={inProgress}
+                                    showUser
+                                    emptyMessage="No tasks found."
+                                    detailsHref={(id) => show(id).url}
+                                />
                             </TabsContent>
                             <TabsContent value="completed">
-                                <TaskTable items={completed} />
+                                <RequestTable
+                                    requests={completed}
+                                    showUser
+                                    emptyMessage="No tasks found."
+                                    detailsHref={(id) => show(id).url}
+                                />
                             </TabsContent>
                         </Tabs>
                     </CardContent>

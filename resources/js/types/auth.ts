@@ -4,7 +4,7 @@ export type User = {
     full_name: string;
     email: string;
     phone: string;
-    role: 'user' | 'technician' | 'admin';
+    role: 'client' | 'technician' | 'admin';
     is_active: boolean;
     avatar?: string;
     email_verified_at: string | null;

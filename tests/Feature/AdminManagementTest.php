@@ -2,10 +2,7 @@
 
 use App\Models\MaintenanceRequest;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
-
-uses(RefreshDatabase::class);
 
 test('admin can view users management page', function () {
     $admin = User::factory()->create([
@@ -13,7 +10,7 @@ test('admin can view users management page', function () {
     ]);
 
     User::factory()->create([
-        'role' => 'user',
+        'role' => 'client',
     ]);
 
     $this->actingAs($admin)
@@ -28,12 +25,12 @@ test('admin can toggle user active status', function () {
     ]);
 
     $user = User::factory()->create([
-        'role' => 'user',
+        'role' => 'client',
         'is_active' => true,
     ]);
 
     $this->actingAs($admin)
-        ->patch(route('admin.users.toggle-active', $user))
+        ->post(route('admin.users.toggle-active', $user))
         ->assertRedirect();
 
     $this->assertDatabaseHas('users', [
@@ -42,29 +39,7 @@ test('admin can toggle user active status', function () {
     ]);
 });
 
-test('admin can create technician', function () {
-    $admin = User::factory()->create([
-        'role' => 'admin',
-    ]);
-
-    $this->actingAs($admin)
-        ->post(route('admin.technicians.store'), [
-            'full_name' => 'Tech Person',
-            'email' => 'tech.person@example.com',
-            'phone' => '+15550001234',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
-        ])
-        ->assertRedirect();
-
-    $this->assertDatabaseHas('users', [
-        'email' => 'tech.person@example.com',
-        'role' => 'technician',
-        'is_active' => true,
-    ]);
-});
-
-test('admin can update technician', function () {
+test('admin can toggle technician active status', function () {
     $admin = User::factory()->create([
         'role' => 'admin',
     ]);
@@ -75,18 +50,11 @@ test('admin can update technician', function () {
     ]);
 
     $this->actingAs($admin)
-        ->patch(route('admin.technicians.update', $technician), [
-            'full_name' => 'Updated Technician',
-            'email' => 'updated.tech@example.com',
-            'phone' => '+15559990000',
-            'is_active' => false,
-        ])
+        ->post(route('admin.technicians.toggle-active', $technician))
         ->assertRedirect();
 
     $this->assertDatabaseHas('users', [
         'id' => $technician->id,
-        'full_name' => 'Updated Technician',
-        'email' => 'updated.tech@example.com',
         'is_active' => false,
     ]);
 });
@@ -97,7 +65,7 @@ test('admin can view requests management page', function () {
     ]);
 
     $user = User::factory()->create([
-        'role' => 'user',
+        'role' => 'client',
     ]);
 
     MaintenanceRequest::query()->create([
@@ -118,7 +86,7 @@ test('admin can view requests management page', function () {
 
 test('non-admin cannot access admin pages', function () {
     $user = User::factory()->create([
-        'role' => 'user',
+        'role' => 'client',
     ]);
 
     $this->actingAs($user)

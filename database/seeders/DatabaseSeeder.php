@@ -11,9 +11,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // استدعاء الـ Seeder الخاص بحسابات المسؤول والفني
+        // Seed demo accounts and request data for local testing.
         $this->call([
             AdminAndTechnicianSeeder::class,
+            MaintenanceRequestSeeder::class,
+            OfferSeeder::class,
+            RequestStatusHistorySeeder::class,
         ]);
     }
 }

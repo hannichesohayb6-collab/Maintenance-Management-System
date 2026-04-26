@@ -15,7 +15,10 @@ class RequestManagementController extends Controller
             ->with([
                 'user:id,full_name,email',
                 'assignedTechnician:id,full_name,email',
-                'offers' => fn ($query) => $query->latest()->limit(1),
+                'latestOffer.technician:id,full_name',
+                'statusHistory' => fn ($query) => $query
+                    ->with('changedBy:id,full_name')
+                    ->orderByDesc('changed_at'),
             ])
             ->latest()
             ->paginate(10)

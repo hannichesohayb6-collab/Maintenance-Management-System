@@ -23,6 +23,7 @@ class CreateNewUser implements CreatesNewUsers
         Validator::make($input, [
             ...$this->profileRules(),
             'password' => $this->passwordRules(),
+            'role' => ['required', 'in:client,technician'],
         ])->validate();
 
         return User::create([
@@ -30,7 +31,8 @@ class CreateNewUser implements CreatesNewUsers
             'email' => $input['email'],
             'phone' => $input['phone'],
             'password_hash' => Hash::make($input['password']),
-            'role' => 'user',
+            // Save the selected account type during signup.
+            'role' => $input['role'],
             'is_active' => true,
         ]);
     }

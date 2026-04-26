@@ -1,8 +1,9 @@
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
+import { OfferCard } from '@/components/maintenance/offer-card';
+import { RequestDetailsCard } from '@/components/maintenance/request-details-card';
 import { StatusTimeline } from '@/components/maintenance/status-timeline';
 import { PageHeader } from '@/components/shared/page-header';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,9 +15,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { accept, index, reject, show, updateStatus } from '@/routes/technician/requests';
+import { index, show, updateStatus } from '@/routes/technician/requests';
 import { store as storeOffer } from '@/routes/technician/requests/offers';
 
 type MaintenanceRequestData = {
@@ -32,7 +32,7 @@ type MaintenanceRequestData = {
         full_name: string;
         email: string;
         phone: string;
-    };
+    } | null;
     assigned_technician_id: number | null;
 };
 
@@ -46,16 +46,20 @@ type OfferData = {
     technician?: {
         id: number;
         full_name: string;
-    };
+    } | null;
 };
 
 export default function TechnicianReceivedRequestShow({
     maintenanceRequest,
     offers,
     statusHistory,
+    canSendOffer,
+    canUpdateStatus,
 }: {
     maintenanceRequest: MaintenanceRequestData;
     offers: OfferData[];
+    canSendOffer: boolean;
+    canUpdateStatus: boolean;
     statusHistory: Array<{
         id: number;
         old_status: string | null;
@@ -74,10 +78,10 @@ export default function TechnicianReceivedRequestShow({
     });
 
     const statusForm = useForm<{
-        status: 'under_review' | 'offer_sent' | 'in_progress' | 'completed' | 'cancelled';
+        status: 'technician_assigned' | 'in_progress' | 'completed' | 'cancelled';
         note: string;
     }>({
-        status: 'under_review',
+        status: 'technician_assigned',
         note: '',
     });
 
@@ -93,7 +97,7 @@ export default function TechnicianReceivedRequestShow({
     const submitStatus = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        statusForm.patch(updateStatus(maintenanceRequest.id).url, {
+        statusForm.post(updateStatus(maintenanceRequest.id).url, {
             preserveScroll: true,
             onSuccess: () => statusForm.setData('note', ''),
         });
@@ -106,167 +110,138 @@ export default function TechnicianReceivedRequestShow({
             <div className="space-y-6 p-4">
                 <PageHeader
                     title={`Request #${maintenanceRequest.id}`}
-                    description="Review request details, send offers, and update progress."
+                    description="Review request details, send one offer, and update assigned work."
                 />
 
                 <div className="grid gap-6 lg:grid-cols-2">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Request Summary</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                            <p className="font-medium">{maintenanceRequest.title}</p>
-                            <p className="text-sm text-muted-foreground">{maintenanceRequest.description}</p>
-                            <Separator />
-                            <p className="text-sm">Location: {maintenanceRequest.location}</p>
-                            <p className="text-sm">User: {maintenanceRequest.user?.full_name ?? 'N/A'}</p>
-                            <div className="flex gap-2">
-                                <Badge variant="outline">{maintenanceRequest.priority}</Badge>
-                                <Badge>{maintenanceRequest.status}</Badge>
-                            </div>
-
-                            {maintenanceRequest.status === 'pending' && (
-                                <div className="flex gap-2 pt-2">
-                                    <Button onClick={() => router.patch(accept(maintenanceRequest.id).url)}>
-                                        Accept Request
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => router.patch(reject(maintenanceRequest.id).url)}
-                                    >
-                                        Reject Request
-                                    </Button>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
+                    <div className="space-y-4">
+                        <RequestDetailsCard
+                            request={maintenanceRequest}
+                            title="Request Summary"
+                            showUser
+                        />
+                    </div>
 
                     <Card>
                         <CardHeader>
                             <CardTitle>Send Offer</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <form onSubmit={submitOffer} className="space-y-4">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="offer_description">Offer Description</Label>
-                                    <Textarea
-                                        id="offer_description"
-                                        value={offerForm.data.offer_description}
-                                        onChange={(event) =>
-                                            offerForm.setData('offer_description', event.target.value)
-                                        }
-                                    />
-                                    {offerForm.errors.offer_description && (
-                                        <p className="text-sm text-destructive">{offerForm.errors.offer_description}</p>
-                                    )}
-                                </div>
-
-                                <div className="grid gap-4 sm:grid-cols-2">
+                            {canSendOffer ? (
+                                <form onSubmit={submitOffer} className="space-y-4">
                                     <div className="grid gap-2">
-                                        <Label htmlFor="estimated_cost">Estimated Cost</Label>
-                                        <Input
-                                            id="estimated_cost"
-                                            type="number"
-                                            min="0"
-                                            step="0.01"
-                                            value={offerForm.data.estimated_cost}
-                                            onChange={(event) => offerForm.setData('estimated_cost', event.target.value)}
-                                        />
-                                        {offerForm.errors.estimated_cost && (
-                                            <p className="text-sm text-destructive">{offerForm.errors.estimated_cost}</p>
-                                        )}
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="estimated_days">Estimated Days</Label>
-                                        <Input
-                                            id="estimated_days"
-                                            type="number"
-                                            min="1"
-                                            value={offerForm.data.estimated_days}
+                                        <Label htmlFor="offer_description">Offer Description</Label>
+                                        <Textarea
+                                            id="offer_description"
+                                            value={offerForm.data.offer_description}
                                             onChange={(event) =>
-                                                offerForm.setData('estimated_days', Number(event.target.value))
+                                                offerForm.setData('offer_description', event.target.value)
                                             }
                                         />
-                                        {offerForm.errors.estimated_days && (
-                                            <p className="text-sm text-destructive">{offerForm.errors.estimated_days}</p>
+                                        {offerForm.errors.offer_description && (
+                                            <p className="text-sm text-destructive">{offerForm.errors.offer_description}</p>
                                         )}
                                     </div>
-                                </div>
 
-                                <Button type="submit" disabled={offerForm.processing}>
-                                    Send Offer
-                                </Button>
-                            </form>
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="estimated_cost">Estimated Cost</Label>
+                                            <Input
+                                                id="estimated_cost"
+                                                type="number"
+                                                min="0"
+                                                step="0.01"
+                                                value={offerForm.data.estimated_cost}
+                                                onChange={(event) => offerForm.setData('estimated_cost', event.target.value)}
+                                            />
+                                            {offerForm.errors.estimated_cost && (
+                                                <p className="text-sm text-destructive">{offerForm.errors.estimated_cost}</p>
+                                            )}
+                                        </div>
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="estimated_days">Estimated Days</Label>
+                                            <Input
+                                                id="estimated_days"
+                                                type="number"
+                                                min="1"
+                                                value={offerForm.data.estimated_days}
+                                                onChange={(event) =>
+                                                    offerForm.setData('estimated_days', Number(event.target.value))
+                                                }
+                                            />
+                                            {offerForm.errors.estimated_days && (
+                                                <p className="text-sm text-destructive">{offerForm.errors.estimated_days}</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <Button type="submit" disabled={offerForm.processing}>
+                                        Send Offer
+                                    </Button>
+                                </form>
+                            ) : (
+                                <p className="text-sm text-muted-foreground">
+                                    You can send one offer while the request is still pending.
+                                </p>
+                            )}
                         </CardContent>
                     </Card>
                 </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Update Status</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <form onSubmit={submitStatus} className="grid gap-4 md:grid-cols-[220px_1fr_auto] md:items-end">
-                            <div className="grid gap-2">
-                                <Label>Status</Label>
-                                <Select
-                                    value={statusForm.data.status}
-                                    onValueChange={(value: typeof statusForm.data.status) =>
-                                        statusForm.setData('status', value)
-                                    }
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="under_review">Under Review</SelectItem>
-                                        <SelectItem value="offer_sent">Offer Sent</SelectItem>
-                                        <SelectItem value="in_progress">In Progress</SelectItem>
-                                        <SelectItem value="completed">Completed</SelectItem>
-                                        <SelectItem value="cancelled">Cancelled</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="note">Note (optional)</Label>
-                                <Input
-                                    id="note"
-                                    value={statusForm.data.note}
-                                    onChange={(event) => statusForm.setData('note', event.target.value)}
-                                    placeholder="Status update note..."
-                                />
-                            </div>
-
-                            <Button type="submit" disabled={statusForm.processing}>
-                                Update
-                            </Button>
-                        </form>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Offers</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                        {offers.length === 0 ? (
-                            <p className="text-sm text-muted-foreground">No offers sent yet.</p>
-                        ) : (
-                            offers.map((offer) => (
-                                <div key={offer.id} className="rounded-md border p-3">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <Badge variant="secondary">{offer.status}</Badge>
-                                        <span className="text-sm text-muted-foreground">
-                                            ${offer.estimated_cost} / {offer.estimated_days} days
-                                        </span>
-                                    </div>
-                                    <p className="mt-2 text-sm">{offer.offer_description}</p>
+                {canUpdateStatus && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Update Status</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <form onSubmit={submitStatus} className="grid gap-4 md:grid-cols-[220px_1fr_auto] md:items-end">
+                                <div className="grid gap-2">
+                                    <Label>Status</Label>
+                                    <Select
+                                        value={statusForm.data.status}
+                                        onValueChange={(value: typeof statusForm.data.status) =>
+                                            statusForm.setData('status', value)
+                                        }
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="technician_assigned">Technician Assigned</SelectItem>
+                                            <SelectItem value="in_progress">In Progress</SelectItem>
+                                            <SelectItem value="completed">Completed</SelectItem>
+                                            <SelectItem value="cancelled">Cancelled</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
-                            ))
-                        )}
-                    </CardContent>
-                </Card>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="note">Note (optional)</Label>
+                                    <Input
+                                        id="note"
+                                        value={statusForm.data.note}
+                                        onChange={(event) => statusForm.setData('note', event.target.value)}
+                                        placeholder="Status update note..."
+                                    />
+                                </div>
+
+                                <Button type="submit" disabled={statusForm.processing}>
+                                    Update
+                                </Button>
+                            </form>
+                        </CardContent>
+                    </Card>
+                )}
+
+                <div className="grid gap-4 md:grid-cols-2">
+                    {offers.length === 0 ? (
+                        <OfferCard offer={null} title="Offers" />
+                    ) : (
+                        offers.map((offer) => (
+                            <OfferCard key={offer.id} offer={offer} title={`Offer #${offer.id}`} />
+                        ))
+                    )}
+                </div>
 
                 <StatusTimeline items={statusHistory} />
             </div>
@@ -277,7 +252,7 @@ export default function TechnicianReceivedRequestShow({
 TechnicianReceivedRequestShow.layout = (props: { maintenanceRequest: { id: number } }) => ({
     breadcrumbs: [
         {
-            title: 'Received Requests',
+            title: 'Available Requests',
             href: index(),
         },
         {

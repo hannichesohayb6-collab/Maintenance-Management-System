@@ -70,7 +70,7 @@ export default function AdminUsersIndex({ users }: { users: PaginatedUsers }) {
                                                 <Button
                                                     size="sm"
                                                     variant="outline"
-                                                    onClick={() => router.patch(toggleActive(user.id))}
+                                                    onClick={() => router.post(toggleActive(user.id))}
                                                 >
                                                     {user.is_active ? 'Deactivate' : 'Activate'}
                                                 </Button>

@@ -24,7 +24,7 @@ const mainNavItems: NavItem[] = [
         icon: ClipboardList,
     },
     {
-        title: 'Received Requests',
+        title: 'Available Requests',
         href: requestsIndex(),
         icon: ListChecks,
     },

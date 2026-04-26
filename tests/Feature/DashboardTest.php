@@ -9,13 +9,15 @@ test('guests are redirected to the login page', function () {
     $response->assertRedirect(route('login'));
 });
 
-test('users are sent to the user dashboard component', function () {
+test('clients are sent to the user dashboard component', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
         ->get(route('dashboard'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page): Assert => $page->component('user/dashboard'));
+        ->assertInertia(fn (Assert $page): Assert => $page
+            ->component('user/dashboard')
+            ->where('auth.user.id', $user->id));
 });
 
 test('technicians are sent to the technician dashboard component', function () {
@@ -40,9 +42,9 @@ test('admins are sent to the admin dashboard component', function () {
         ->assertInertia(fn (Assert $page): Assert => $page->component('admin/dashboard'));
 });
 
-test('role middleware blocks users from technician dashboard routes', function () {
+test('role middleware blocks clients from technician dashboard routes', function () {
     $user = User::factory()->create([
-        'role' => 'user',
+        'role' => 'client',
     ]);
 
     $this->actingAs($user)
@@ -52,7 +54,7 @@ test('role middleware blocks users from technician dashboard routes', function (
 
 test('inactive users are logged out when they hit a role protected route', function () {
     $user = User::factory()->create([
-        'role' => 'user',
+        'role' => 'client',
         'is_active' => false,
     ]);
 

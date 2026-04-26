@@ -3,14 +3,11 @@
 use App\Models\MaintenanceRequest;
 use App\Models\Offer;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
-
-uses(RefreshDatabase::class);
 
 test('user can create a maintenance request', function () {
     $user = User::factory()->create([
-        'role' => 'user',
+        'role' => 'client',
     ]);
 
     $this->actingAs($user)
@@ -36,8 +33,8 @@ test('user can create a maintenance request', function () {
 });
 
 test('user can only view their own maintenance request', function () {
-    $owner = User::factory()->create(['role' => 'user']);
-    $otherUser = User::factory()->create(['role' => 'user']);
+    $owner = User::factory()->create(['role' => 'client']);
+    $otherUser = User::factory()->create(['role' => 'client']);
 
     $request = MaintenanceRequest::query()->create([
         'user_id' => $owner->id,
@@ -54,23 +51,24 @@ test('user can only view their own maintenance request', function () {
         ->assertForbidden();
 });
 
-test('user can accept the latest sent offer', function () {
-    $user = User::factory()->create(['role' => 'user']);
-    $technician = User::factory()->create(['role' => 'technician']);
+test('user can accept one sent offer and assign that technician', function () {
+    $user = User::factory()->create(['role' => 'client']);
+    $selectedTechnician = User::factory()->create(['role' => 'technician']);
+    $otherTechnician = User::factory()->create(['role' => 'technician']);
 
     $request = MaintenanceRequest::query()->create([
         'user_id' => $user->id,
-        'assigned_technician_id' => $technician->id,
+        'assigned_technician_id' => null,
         'title' => 'Door Repair',
         'description' => 'Main door hinge is broken.',
         'location' => 'Main Entrance',
         'priority' => 'medium',
-        'status' => 'offer_sent',
+        'status' => 'pending',
     ]);
 
-    Offer::query()->create([
+    $acceptedOffer = Offer::query()->create([
         'request_id' => $request->id,
-        'technician_id' => $technician->id,
+        'technician_id' => $selectedTechnician->id,
         'offer_description' => 'Replace hinges and align frame.',
         'estimated_cost' => 120,
         'estimated_days' => 2,
@@ -78,8 +76,20 @@ test('user can accept the latest sent offer', function () {
         'sent_at' => now(),
     ]);
 
+    Offer::query()->create([
+        'request_id' => $request->id,
+        'technician_id' => $otherTechnician->id,
+        'offer_description' => 'Replace the hinges only.',
+        'estimated_cost' => 90,
+        'estimated_days' => 1,
+        'status' => 'sent',
+        'sent_at' => now(),
+    ]);
+
     $this->actingAs($user)
-        ->patch(route('user.requests.accept-offer', $request))
+        ->post(route('user.requests.accept-offer', $request), [
+            'offer_id' => $acceptedOffer->id,
+        ])
         ->assertRedirect();
 
     $this->assertDatabaseHas('offers', [
@@ -87,14 +97,21 @@ test('user can accept the latest sent offer', function () {
         'status' => 'accepted',
     ]);
 
+    $this->assertDatabaseHas('offers', [
+        'request_id' => $request->id,
+        'technician_id' => $otherTechnician->id,
+        'status' => 'rejected',
+    ]);
+
     $this->assertDatabaseHas('maintenance_requests', [
         'id' => $request->id,
-        'status' => 'offer_accepted',
+        'assigned_technician_id' => $selectedTechnician->id,
+        'status' => 'technician_assigned',
     ]);
 });
 
 test('user requests index renders expected inertia page', function () {
-    $user = User::factory()->create(['role' => 'user']);
+    $user = User::factory()->create(['role' => 'client']);
 
     $this->actingAs($user)
         ->get(route('user.requests.index'))

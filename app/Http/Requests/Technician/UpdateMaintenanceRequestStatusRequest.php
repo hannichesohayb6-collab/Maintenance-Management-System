@@ -23,7 +23,7 @@ class UpdateMaintenanceRequestStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['required', 'in:under_review,offer_sent,in_progress,completed,cancelled'],
+            'status' => ['required', 'in:technician_assigned,in_progress,completed,cancelled'],
             'note' => ['nullable', 'string'],
         ];
     }

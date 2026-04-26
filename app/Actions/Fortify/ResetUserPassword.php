@@ -1,5 +1,8 @@
 <?php
 
+namespace App\Actions\Fortify;
+
+use App\Concerns\PasswordValidationRules;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -16,12 +19,10 @@ class ResetUserPassword implements ResetsUserPasswords
      */
     public function reset(User $user, array $input): void
     {
-        // التحقق من صحة كلمة المرور الجديدة بناءً على القواعد المعرفة
         Validator::make($input, [
             'password' => $this->passwordRules(),
         ])->validate();
 
-        // التعديل الأساسي: تحديث حقل password_hash بدلاً من الحقل الافتراضي
         $user->forceFill([
             'password_hash' => Hash::make($input['password']),
         ])->save();

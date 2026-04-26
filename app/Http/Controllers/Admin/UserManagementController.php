@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -13,7 +12,7 @@ class UserManagementController extends Controller
     public function index(): Response
     {
         $users = User::query()
-            ->where('role', 'user')
+            ->where('role', 'client')
             ->latest()
             ->paginate(10)
             ->withQueryString();
@@ -23,9 +22,9 @@ class UserManagementController extends Controller
         ]);
     }
 
-    public function toggleActive(User $user): RedirectResponse
+    public function toggleActive(User $user)
     {
-        abort_unless($user->role === 'user', 403);
+        abort_unless($user->role === 'client', 403);
 
         $user->update([
             'is_active' => ! $user->is_active,
