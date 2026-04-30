@@ -1,8 +1,10 @@
 import { AppContent } from '@/components/app-content';
 import { AppShell } from '@/components/app-shell';
 import { AppSidebarHeader } from '@/components/app-sidebar-header';
-import { TechnicianSidebar } from '@/components/shared/technician-sidebar';
-import { UserSidebar } from '@/components/shared/user-sidebar';
+import {
+    TechnicianSidebar,
+    UserSidebar,
+} from '@/components/shared/role-sidebar';
 import type { AppLayoutProps } from '@/types';
 
 type UserLayoutProps = AppLayoutProps & {

@@ -56,11 +56,11 @@ export default function UserMaintenanceRequestShow({
 }) {
     return (
         <>
-            <Head title={`Request #${maintenanceRequest.id}`} />
+            <Head title={`Request ${maintenanceRequest.title}`} />
 
             <div className="space-y-6 p-4">
                 <PageHeader
-                    title={`Request #${maintenanceRequest.id}`}
+                    title={`Request ${maintenanceRequest.title}`}
                     description="Request details, all offers, and status history."
                 />
 
@@ -114,14 +114,14 @@ export default function UserMaintenanceRequestShow({
     );
 }
 
-UserMaintenanceRequestShow.layout = (props: { maintenanceRequest: { id: number } }) => ({
+UserMaintenanceRequestShow.layout = (props: { maintenanceRequest: { id: number , title: string } }) => ({
     breadcrumbs: [
         {
             title: 'My Requests',
             href: index(),
         },
         {
-            title: `Request #${props.maintenanceRequest.id}`,
+            title: `Request ${props.maintenanceRequest.title}`,
             href: show(props.maintenanceRequest.id),
         },
     ],
