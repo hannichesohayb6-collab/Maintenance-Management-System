@@ -42,6 +42,7 @@ class User extends Authenticatable
      */
     protected $appends = [
         'name',
+        'rating',
     ];
 
     protected function casts(): array
@@ -90,5 +91,17 @@ class User extends Authenticatable
     public function specializations()
     {
         return $this->belongsToMany(Specialization::class);
+    }
+
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class, 'technician_id');
+    }
+
+    protected function rating(): Attribute
+    {
+        return Attribute::get(fn () =>
+            $this->ratings()->avg('rating') ?? 0
+        );
     }
 }

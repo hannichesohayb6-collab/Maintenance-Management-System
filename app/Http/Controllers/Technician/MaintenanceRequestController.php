@@ -40,6 +40,7 @@ class MaintenanceRequestController extends Controller
             'assignedTechnician:id,full_name,email,phone',
             'offers' => fn ($query) => $query->with('technician:id,full_name')->latest(),
             'statusHistory' => fn ($query) => $query->with('changedBy:id,full_name')->orderByDesc('changed_at'),
+            'images',
         ]);
 
         return Inertia::render('technician/received-requests/show', [

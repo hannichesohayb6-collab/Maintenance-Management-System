@@ -27,6 +27,7 @@ type MaintenanceRequestData = {
     priority: string;
     status: string;
     created_at: string;
+    images?: Array<{ id: number; image_path: string }>;
     user?: {
         id: number;
         full_name: string;
@@ -120,6 +121,22 @@ export default function TechnicianReceivedRequestShow({
                             title="Request Summary"
                             showUser
                         />
+
+                        {maintenanceRequest.images && maintenanceRequest.images.length > 0 && (
+                            <div className="space-y-3">
+                                <Label>Attached Images</Label>
+                                <div className="grid grid-cols-3 gap-4">
+                                    {maintenanceRequest.images.map((img) => (
+                                        <img
+                                            key={img.id}
+                                            src={`/storage/${img.image_path}`}
+                                            alt="Request image"
+                                            className="aspect-square w-full object-cover rounded-md border"
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <Card>
