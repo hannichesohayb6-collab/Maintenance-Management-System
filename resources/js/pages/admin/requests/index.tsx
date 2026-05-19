@@ -1,10 +1,9 @@
 import { Head } from '@inertiajs/react';
-import { Eye } from 'lucide-react';
+import { Eye, Filter, UserRound, UserRoundCog } from 'lucide-react';
 import { useState } from 'react';
 import { OfferCard } from '@/components/maintenance/offer-card';
+import { RequestCardGrid } from '@/components/maintenance/request-card-grid';
 import { RequestDetailsCard } from '@/components/maintenance/request-details-card';
-import { RequestPriorityBadge } from '@/components/maintenance/request-priority-badge';
-import { RequestStatusBadge } from '@/components/maintenance/request-status-badge';
 import { StatusTimeline } from '@/components/maintenance/status-timeline';
 import { PageHeader } from '@/components/shared/page-header';
 import { Button } from '@/components/ui/button';
@@ -24,14 +23,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
 import { index } from '@/routes/admin/requests';
 
 type AdminRequest = {
@@ -85,8 +76,10 @@ export default function AdminRequestsIndex({
     const [priorityFilter, setPriorityFilter] = useState<string>('all');
 
     const filteredRequests = requests.data.filter((request) => {
-        const statusMatches = statusFilter === 'all' || request.status === statusFilter;
-        const priorityMatches = priorityFilter === 'all' || request.priority === priorityFilter;
+        const statusMatches =
+            statusFilter === 'all' || request.status === statusFilter;
+        const priorityMatches =
+            priorityFilter === 'all' || request.priority === priorityFilter;
 
         return statusMatches && priorityMatches;
     });
@@ -102,21 +95,31 @@ export default function AdminRequestsIndex({
                 />
 
                 <div className="flex flex-wrap gap-3">
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <Select
+                        value={statusFilter}
+                        onValueChange={setStatusFilter}
+                    >
                         <SelectTrigger className="w-[220px]">
                             <SelectValue placeholder="Filter by status" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All Statuses</SelectItem>
                             <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="technician_assigned">Technician Assigned</SelectItem>
-                            <SelectItem value="in_progress">In Progress</SelectItem>
+                            <SelectItem value="technician_assigned">
+                                Technician Assigned
+                            </SelectItem>
+                            <SelectItem value="in_progress">
+                                In Progress
+                            </SelectItem>
                             <SelectItem value="completed">Completed</SelectItem>
                             <SelectItem value="cancelled">Cancelled</SelectItem>
                         </SelectContent>
                     </Select>
 
-                    <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                    <Select
+                        value={priorityFilter}
+                        onValueChange={setPriorityFilter}
+                    >
                         <SelectTrigger className="w-[220px]">
                             <SelectValue placeholder="Filter by priority" />
                         </SelectTrigger>
@@ -132,76 +135,69 @@ export default function AdminRequestsIndex({
 
                 <Card>
                     <CardContent className="pt-6">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Title</TableHead>
-                                    <TableHead>User</TableHead>
-                                    <TableHead>Technician</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Priority</TableHead>
-                                    <TableHead>Created</TableHead>
-                                    <TableHead className="text-right">Details</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredRequests.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={7} className="text-center text-muted-foreground">
-                                            No matching requests found.
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    filteredRequests.map((request) => (
-                                        <TableRow key={request.id}>
-                                            <TableCell>{request.title}</TableCell>
-                                            <TableCell>{request.user?.full_name ?? 'N/A'}</TableCell>
-                                            <TableCell>{request.assigned_technician?.full_name ?? 'Unassigned'}</TableCell>
-                                            <TableCell>
-                                                <RequestStatusBadge status={request.status} />
-                                            </TableCell>
-                                            <TableCell>
-                                                <RequestPriorityBadge priority={request.priority} />
-                                            </TableCell>
-                                            <TableCell>{new Date(request.created_at).toLocaleDateString()}</TableCell>
-                                            <TableCell className="text-right">
-                                                <Dialog>
-                                                    <DialogTrigger asChild>
-                                                        <Button size="icon" variant="outline">
-                                                            <Eye />
-                                                            <span className="sr-only">View request details</span>
-                                                        </Button>
-                                                    </DialogTrigger>
-                                                    <DialogContent className="max-h-[90vh] max-w-4xl overflow-hidden p-0 sm:max-w-4xl">
-                                                        <DialogHeader className="border-b px-6 pt-6 pb-4">
-                                                            <DialogTitle>
-                                                                Request #{request.id} Details
-                                                            </DialogTitle>
-                                                            <DialogDescription>
-                                                                Full request details, latest offer, and history.
-                                                            </DialogDescription>
-                                                        </DialogHeader>
+                        <div className="mb-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                            <span className="flex items-center gap-2">
+                                <Filter className="size-4" />
+                                {filteredRequests.length} matching request
+                                {filteredRequests.length === 1 ? '' : 's'}
+                            </span>
+                            <span className="flex items-center gap-2">
+                                <UserRound className="size-4" />
+                                Users and admins can review every card quickly
+                            </span>
+                            <span className="flex items-center gap-2">
+                                <UserRoundCog className="size-4" />
+                                Technician assignment stays visible on each
+                                request
+                            </span>
+                        </div>
+                        <RequestCardGrid
+                            requests={filteredRequests}
+                            showUser
+                            showTechnician
+                            emptyMessage="No matching requests found."
+                            actions={(request) => (
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button size="sm" variant="outline">
+                                            <Eye className="size-4" />
+                                            Details
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="max-h-[90vh] max-w-4xl overflow-hidden p-0 sm:max-w-4xl">
+                                        <DialogHeader className="border-b px-6 pt-6 pb-4">
+                                            <DialogTitle>
+                                                Request #{request.id} Details
+                                            </DialogTitle>
+                                            <DialogDescription>
+                                                Full request details, latest
+                                                offer, and history.
+                                            </DialogDescription>
+                                        </DialogHeader>
 
-                                                        {/* Keep the dialog inside the screen and scroll only the body. */}
-                                                        <div className="max-h-[calc(90vh-88px)] space-y-6 overflow-y-auto px-6 pb-6">
-                                                            <RequestDetailsCard
-                                                                request={request}
-                                                                showUser
-                                                                showTechnician
-                                                            />
+                                        <div className="max-h-[calc(90vh-88px)] space-y-6 overflow-y-auto px-6 pb-6">
+                                            <RequestDetailsCard
+                                                request={request}
+                                                showUser
+                                                showTechnician
+                                            />
 
-                                                            <OfferCard offer={request.latest_offer ?? null} />
+                                            <OfferCard
+                                                offer={
+                                                    request.latest_offer ?? null
+                                                }
+                                            />
 
-                                                            <StatusTimeline items={request.status_history ?? []} />
-                                                        </div>
-                                                    </DialogContent>
-                                                </Dialog>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
+                                            <StatusTimeline
+                                                items={
+                                                    request.status_history ?? []
+                                                }
+                                            />
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
+                            )}
+                        />
                     </CardContent>
                 </Card>
             </div>

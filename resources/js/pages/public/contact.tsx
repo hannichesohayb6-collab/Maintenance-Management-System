@@ -1,34 +1,9 @@
 import { Link } from '@inertiajs/react';
-import {
-    ArrowRightIcon,
-    MailIcon,
-    MessageSquareIcon,
-    WrenchIcon,
-} from 'lucide-react';
+import { ArrowRightIcon } from 'lucide-react';
 
+import { ContactSection } from '@/components/contact-section';
 import { Button } from '@/components/ui/button';
 import { login, register } from '@/routes';
-
-const contactOptions = [
-    {
-        title: 'Request support',
-        description:
-            'Use your account dashboard to follow requests, offers, and technician updates.',
-        icon: MessageSquareIcon,
-    },
-    {
-        title: 'Maintenance coordination',
-        description:
-            'Technicians can sign in to review available requests and manage assigned tasks.',
-        icon: WrenchIcon,
-    },
-    {
-        title: 'Administration',
-        description:
-            'Admins can manage users, technicians, and the full maintenance request history.',
-        icon: MailIcon,
-    },
-];
 
 export default function Contact() {
     return (
@@ -60,20 +35,7 @@ export default function Contact() {
                     </Button>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-3">
-                    {contactOptions.map((option) => (
-                        <article
-                            className="rounded-lg border bg-card p-5 shadow-xs"
-                            key={option.title}
-                        >
-                            <option.icon className="size-5 text-muted-foreground" />
-                            <h2 className="mt-4 font-medium">{option.title}</h2>
-                            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                                {option.description}
-                            </p>
-                        </article>
-                    ))}
-                </div>
+                <ContactSection />
             </section>
         </div>
     );

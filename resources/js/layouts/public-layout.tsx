@@ -1,14 +1,15 @@
-import type { PropsWithChildren } from 'react';
 import { Link } from '@inertiajs/react';
+import type { PropsWithChildren } from 'react';
 
 import AppLogo from '@/components/app-logo';
 import { Header } from '@/components/header';
 import { ThemeToggleButton } from '@/components/theme-toggle-button';
-import { about, contact, home } from '@/routes';
+import { about, availableRequests, contact, home } from '@/routes';
 
 const footerLinks = [
     { label: 'Home', href: home() },
     { label: 'About', href: about() },
+    { label: 'Available Requests', href: availableRequests() },
     { label: 'Contact', href: contact() },
 ];
 
@@ -37,12 +38,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                         ))}
                     </nav>
 
-                    <div className="flex items-center gap-3">
-                        <p className="text-sm text-muted-foreground">
-                            Maintenance workflows, clearly tracked.
-                        </p>
-                        <ThemeToggleButton />
-                    </div>
+                    <ThemeToggleButton />
                 </div>
             </footer>
         </div>

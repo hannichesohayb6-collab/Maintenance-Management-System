@@ -1,27 +1,24 @@
-import {
-    ClipboardCheckIcon,
-    ShieldCheckIcon,
-    UsersIcon,
-    WrenchIcon,
-} from 'lucide-react';
+import { Check, ShieldCheckIcon, UsersIcon, WrenchIcon } from 'lucide-react';
+
+import { FaqsSection } from '@/components/faqs-section';
 
 const values = [
     {
-        title: 'Clear request ownership',
+        title: 'Radical Transparency',
         description:
-            'Clients submit maintenance needs with the details technicians and admins need to act quickly.',
-        icon: ClipboardCheckIcon,
+            ' By using features like Status history and Priority tracking you arent just managing tasks; you are building trust.',
+        icon: Check,
     },
     {
-        title: 'Technician coordination',
+        title: 'Empowered Autonomyn',
         description:
-            'Technicians can review open requests, send offers, and keep assigned work moving.',
+            'Through Technician offers, professionals have the agency to choose work that matches their specific skill set and schedule.',
         icon: WrenchIcon,
     },
     {
-        title: 'Admin visibility',
+        title: 'Proof of Excellence',
         description:
-            'Admins manage users, technician access, and the full request lifecycle from one dashboard.',
+            'The Status history acts as a digital portfolio, documenting their successful resolutions and building a record of reliability.',
         icon: ShieldCheckIcon,
     },
 ];
@@ -35,12 +32,14 @@ export default function About() {
                         About the system
                     </p>
                     <h1 className="text-4xl font-semibold tracking-tight text-balance md:text-5xl">
-                        A practical workspace for maintenance teams.
+                        Our Objectives
                     </h1>
                     <p className="text-base leading-7 text-muted-foreground">
-                        The Maintenance Management System keeps requests,
-                        offers, assignments, and status updates connected so
-                        every role can see what needs attention.
+                        To simplify complex infrastructure care through an
+                        integrated, high-performance Maintenance Management
+                        System. We bridge the gap between users, technicians,
+                        and administrators to ensure that every request is
+                        handled with speed and transparency.
                     </p>
                 </div>
 
@@ -89,6 +88,8 @@ export default function About() {
                     </div>
                 ))}
             </section>
+
+            <FaqsSection />
         </div>
     );
 }

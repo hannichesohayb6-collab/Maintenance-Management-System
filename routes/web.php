@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\RequestManagementController;
 use App\Http\Controllers\Admin\TechnicianManagementController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Public\AvailableRequestController;
 use App\Http\Controllers\Technician\MaintenanceRequestController as TechnicianMaintenanceRequestController;
 use App\Http\Controllers\Technician\OfferController as TechnicianOfferController;
 use App\Http\Controllers\User\MaintenanceRequestController as UserMaintenanceRequestController;
@@ -21,6 +22,8 @@ Route::get('about', function () {
 Route::get('contact', function () {
     return Inertia::render('public/contact');
 })->name('contact');
+
+Route::get('available-requests', AvailableRequestController::class)->name('availableRequests');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');

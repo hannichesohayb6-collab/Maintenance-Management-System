@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
-import { RequestTable } from '@/components/maintenance/request-table';
+import { BadgeCheck, Clock3, Hammer } from 'lucide-react';
+import { RequestCardGrid } from '@/components/maintenance/request-card-grid';
 import { PageHeader } from '@/components/shared/page-header';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -27,6 +28,9 @@ export default function TechnicianMyTasks({
     inProgress: TaskRow[];
     completed: TaskRow[];
 }) {
+    const totalTasks =
+        assignedTasks.length + inProgress.length + completed.length;
+
     return (
         <>
             <Head title="My Tasks" />
@@ -39,6 +43,21 @@ export default function TechnicianMyTasks({
 
                 <Card>
                     <CardContent className="pt-6">
+                        <div className="mb-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                            <span className="flex items-center gap-2">
+                                <Hammer className="size-4" />
+                                {totalTasks} total task
+                                {totalTasks === 1 ? '' : 's'}
+                            </span>
+                            <span className="flex items-center gap-2">
+                                <Clock3 className="size-4" />
+                                {inProgress.length} currently in progress
+                            </span>
+                            <span className="flex items-center gap-2">
+                                <BadgeCheck className="size-4" />
+                                {completed.length} completed
+                            </span>
+                        </div>
                         <Tabs defaultValue="assigned" className="space-y-4">
                             <TabsList>
                                 <TabsTrigger value="assigned">
@@ -53,7 +72,7 @@ export default function TechnicianMyTasks({
                             </TabsList>
 
                             <TabsContent value="assigned">
-                                <RequestTable
+                                <RequestCardGrid
                                     requests={assignedTasks}
                                     showUser
                                     emptyMessage="No tasks found."
@@ -61,7 +80,7 @@ export default function TechnicianMyTasks({
                                 />
                             </TabsContent>
                             <TabsContent value="in-progress">
-                                <RequestTable
+                                <RequestCardGrid
                                     requests={inProgress}
                                     showUser
                                     emptyMessage="No tasks found."
@@ -69,7 +88,7 @@ export default function TechnicianMyTasks({
                                 />
                             </TabsContent>
                             <TabsContent value="completed">
-                                <RequestTable
+                                <RequestCardGrid
                                     requests={completed}
                                     showUser
                                     emptyMessage="No tasks found."

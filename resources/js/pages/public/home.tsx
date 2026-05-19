@@ -1,3 +1,5 @@
+import { CallToAction } from '@/components/cta';
+import { FeatureSection } from '@/components/feature-section';
 import { HeroSection } from '@/components/hero';
 import { LogosSection } from '@/components/logos-section';
 
@@ -19,27 +21,18 @@ const workflowSteps = [
     },
 ];
 
-const roleHighlights = [
-    {
-        label: 'Residents',
-        description: 'Report issues and follow every update.',
-    },
-    {
-        label: 'Technicians',
-        description: 'Review requests, send offers, and update work.',
-    },
-    {
-        label: 'Admins',
-        description: 'Manage users, technicians, and request history.',
-    },
-];
-
 export default function Home() {
     return (
         <>
             <HeroSection />
             <LogosSection />
+            <section className="border-t px-6 py-12 lg:px-8">
+                <FeatureSection />
+            </section>
             <WorkflowSection />
+            <section className="px-6 py-12 lg:px-8">
+                <CallToAction />
+            </section>
         </>
     );
 }
@@ -59,23 +52,6 @@ function WorkflowSection() {
                         Each role gets the tools needed to move a request
                         forward clearly.
                     </p>
-                </div>
-
-                <div
-                    className="grid scroll-mt-24 gap-3 md:grid-cols-3"
-                    id="roles"
-                >
-                    {roleHighlights.map((role) => (
-                        <div
-                            key={role.label}
-                            className="rounded-lg border bg-card p-4 shadow-xs"
-                        >
-                            <h3 className="font-medium">{role.label}</h3>
-                            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                                {role.description}
-                            </p>
-                        </div>
-                    ))}
                 </div>
 
                 <div

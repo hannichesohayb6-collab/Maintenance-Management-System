@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react';
 import { MenuIcon, XIcon } from 'lucide-react';
 import React from 'react';
 import { navLinks } from '@/components/header';
+import { useCurrentUrl } from '@/hooks/use-current-url';
 import { ThemeToggleButton } from '@/components/theme-toggle-button';
 import { Button } from '@/components/ui/button';
 import { Portal, PortalBackdrop } from '@/components/ui/portal';
@@ -10,6 +11,7 @@ import { login, register } from '@/routes';
 
 export function MobileNav() {
     const [open, setOpen] = React.useState(false);
+    const { isCurrentUrl } = useCurrentUrl();
 
     return (
         <div className="md:hidden">
@@ -40,14 +42,20 @@ export function MobileNav() {
                     >
                         <div className="grid gap-y-2">
                             {navLinks.map((link) => (
-                                <Button
-                                    asChild
-                                    className="justify-start"
+                                <Link
+                                    className={cn(
+                                        'inline-flex h-9 items-center justify-start gap-2 rounded-full px-3 text-sm font-medium transition-colors',
+                                        isCurrentUrl(link.href)
+                                            ? 'bg-primary text-primary-foreground shadow-sm'
+                                            : 'text-foreground hover:bg-accent',
+                                    )}
+                                    href={link.href}
                                     key={link.label}
-                                    variant="ghost"
+                                    onClick={() => setOpen(false)}
                                 >
-                                    <Link href={link.href}>{link.label}</Link>
-                                </Button>
+                                    <link.icon className="size-4" />
+                                    <span>{link.label}</span>
+                                </Link>
                             ))}
                         </div>
                         <div className="mt-6 flex items-center justify-between rounded-lg border bg-card p-3">

@@ -46,27 +46,25 @@ export function HeroSection() {
                     )}
                     href={register()}
                 >
-                    <ClipboardCheckIcon className="size-3 text-muted-foreground" />
-                    <span className="text-xs">
+                    <ClipboardCheckIcon className="size-8 text-muted-foreground" />
+                    <span className="text-lg">
                         Requests, offers, and progress in one workflow
                     </span>
                     <span className="block h-5 border-l" />
-                    <ArrowRightIcon className="size-3 duration-150 ease-out group-hover:translate-x-1" />
+                    <ArrowRightIcon className="size-8 duration-150 ease-out group-hover:translate-x-1" />
                 </Link>
 
                 <h1
                     className={cn(
-                        'animate-in text-4xl font-semibold tracking-tight text-balance delay-100 duration-500 ease-out fill-mode-backwards slide-in-from-bottom-10 fade-in md:text-5xl lg:text-6xl',
+                        'animate-in text-4xl font-bold tracking-tight text-balance delay-100 duration-500 ease-out fill-mode-backwards slide-in-from-bottom-10 fade-in md:text-5xl lg:text-6xl',
                         'text-shadow-[0_0px_50px_color-mix(in_oklab,var(--foreground)_20%,transparent)]',
                     )}
                 >
-                    Manage maintenance requests from report to resolution.
+                    Elevate Your Operations with Fixly 
                 </h1>
 
                 <p className="mx-auto max-w-2xl animate-in text-base leading-7 text-muted-foreground delay-200 duration-500 ease-out fill-mode-backwards slide-in-from-bottom-10 fade-in sm:text-lg md:text-xl">
-                    A focused system for residents, technicians, and admins to
-                    submit requests, coordinate offers, assign work, and track
-                    status updates without losing context.
+                    designed for precision and reliability
                 </p>
 
                 <div className="flex animate-in flex-row flex-wrap items-center justify-center gap-3 pt-2 delay-300 duration-500 ease-out fill-mode-backwards slide-in-from-bottom-10 fade-in">
