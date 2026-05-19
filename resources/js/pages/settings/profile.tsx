@@ -1,4 +1,4 @@
-import { Form, Head, Link, usePage } from '@inertiajs/react';
+import { Form, Head, Link, usePage, router } from '@inertiajs/react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
 import Heading from '@/components/heading';
@@ -6,18 +6,53 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import { edit } from '@/routes/profile';
 import { send } from '@/routes/verification';
 import type { Auth } from '@/types/auth';
+import { useState } from 'react';
 
 export default function Profile({
     mustVerifyEmail,
     status,
+    specializations,
+    userSpecializations,
 }: {
     mustVerifyEmail: boolean;
     status?: string;
+    specializations: { id: number; name: string }[];
+    userSpecializations: number[];
 }) {
     const { auth } = usePage<{ auth: Auth }>().props;
+    const [newSpecName, setNewSpecName] = useState('');
+    const [isAddingSpec, setIsAddingSpec] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const addSpecialization = () => {
+        if (!newSpecName.trim()) return;
+
+        setIsAddingSpec(true);
+        router.post('/technician/specializations', {
+            name: newSpecName
+        }, {
+            onSuccess: () => {
+                setNewSpecName('');
+                setIsAddingSpec(false);
+            },
+            onError: () => {
+                setIsAddingSpec(false);
+            }
+        });
+    };
+
+    const filteredSpecializations = specializations.filter(spec =>
+        spec.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const displayedSpecializations = searchQuery
+        ? filteredSpecializations
+        : filteredSpecializations.slice(0, 9);
 
     return (
         <>
@@ -90,6 +125,71 @@ export default function Profile({
 
                                 <InputError className="mt-2" message={errors.phone} />
                             </div>
+
+                            {auth.user.role === 'technician' && (
+                                <div className="grid gap-4">
+                                    <div className="flex items-center justify-between">
+                                        <Label>Specializations</Label>
+                                        <Input
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            placeholder="Search specializations..."
+                                            className="h-8 w-48 text-xs"
+                                        />
+                                    </div>
+                                    <div className="flex flex-wrap gap-2 mb-4">
+                                        {specializations
+                                            .filter(spec => userSpecializations.includes(spec.id))
+                                            .map(spec => (
+                                                <Badge key={spec.id} variant="secondary">
+                                                    {spec.name}
+                                                </Badge>
+                                            ))
+                                        }
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                        {displayedSpecializations.map((spec) => (
+                                            <div key={spec.id} className="flex items-center gap-2">
+                                                <Checkbox
+                                                    id={`spec-${spec.id}`}
+                                                    name="specializations[]"
+                                                    value={spec.id.toString()}
+                                                    defaultChecked={userSpecializations.includes(spec.id)}
+                                                />
+                                                <Label
+                                                    htmlFor={`spec-${spec.id}`}
+                                                    className="text-sm font-normal cursor-pointer"
+                                                >
+                                                    {spec.name}
+                                                </Label>
+                                            </div>
+                                        ))}
+                                        {displayedSpecializations.length === 0 && (
+                                            <p className="text-sm text-muted-foreground col-span-full text-center py-2">
+                                                No specializations found.
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex items-center gap-2 pt-2">
+                                        <Input
+                                            value={newSpecName}
+                                            onChange={(e) => setNewSpecName(e.target.value)}
+                                            placeholder="Add new specialization..."
+                                            className="h-9"
+                                        />
+                                        <Button
+                                            type="button"
+                                            onClick={addSpecialization}
+                                            disabled={isAddingSpec || !newSpecName.trim()}
+                                            className="h-9"
+                                        >
+                                            Add
+                                        </Button>
+                                    </div>
+                                    <InputError className="mt-2" message={errors.specializations} />
+                                </div>
+                            )}
 
                             {mustVerifyEmail && auth.user.email_verified_at === null && (
                                 <div>

@@ -21,6 +21,11 @@ class ProfileController extends Controller
         return Inertia::render('settings/profile', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => $request->session()->get('status'),
+            'specializations' => \App\Models\Specialization::all(),
+            'userSpecializations' => $request->user()
+                ->specializations()
+                ->pluck('specializations.id')
+                ->toArray(),        
         ]);
     }
 
@@ -29,13 +34,18 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request)
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $user->fill($request->validated());
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        $user->save();
+
+        if ($request->has('specializations')) {
+            $user->specializations()->sync($request->input('specializations'));
+        }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Profile updated.')]);
 
@@ -52,7 +62,7 @@ class ProfileController extends Controller
         Auth::logout();
 
         // Remove the account after the user confirms their password.
-        $user->delete();
+        $user->delete($user->id);
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

@@ -19,6 +19,7 @@ trait ProfileValidationRules
             'full_name' => $this->fullNameRules(),
             'email' => $this->emailRules($userId),
             'phone' => $this->phoneRules(),
+            'specializations' => ['nullable', 'array', 'each' => 'exists:specializations,id'],
         ];
     }
 

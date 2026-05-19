@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             MaintenanceRequestSeeder::class,
             OfferSeeder::class,
             RequestStatusHistorySeeder::class,
+            SpecializationSeeder::class,
         ]);
     }
 }

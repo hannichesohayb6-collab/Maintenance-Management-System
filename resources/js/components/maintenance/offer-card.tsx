@@ -10,6 +10,7 @@ type OfferCardProps = {
         status: string;
         technician?: {
             full_name: string;
+            rating?: number;
         } | null;
     } | null;
     title?: string;
@@ -28,6 +29,11 @@ export function OfferCard({ offer, title = 'Offer' }: OfferCardProps) {
                         <Separator />
                         <p className="text-sm">
                             Technician: {offer.technician?.full_name ?? 'N/A'}
+                            {offer.technician?.rating && (
+                                <span className="ml-2 text-yellow-500 font-medium">
+                                    ★ {offer.technician.rating.toFixed(1)}
+                                </span>
+                            )}
                         </p>
                         <p className="text-sm">Estimated Cost: ${offer.estimated_cost}</p>
                         <p className="text-sm">Estimated Days: {offer.estimated_days}</p>

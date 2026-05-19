@@ -20,6 +20,7 @@ class MaintenanceRequest extends Model
         'location',
         'priority',
         'status',
+        'required_specialization_id',
     ];
 
     public function user(): BelongsTo
@@ -48,5 +49,15 @@ class MaintenanceRequest extends Model
     public function statusHistory(): HasMany
     {
         return $this->hasMany(RequestStatusHistory::class, 'request_id');
+    }
+
+    public function requiredSpecialization(): BelongsTo
+    {
+        return $this->belongsTo(Specialization::class, 'required_specialization_id');
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(MaintenanceRequestImage::class);
     }
 }

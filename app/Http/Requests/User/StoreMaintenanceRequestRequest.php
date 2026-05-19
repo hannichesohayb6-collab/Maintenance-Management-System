@@ -27,6 +27,9 @@ class StoreMaintenanceRequestRequest extends FormRequest
             'description' => ['required', 'string'],
             'location' => ['required', 'string', 'max:255'],
             'priority' => ['required', 'in:low,medium,high,urgent'],
+            'required_specialization_id' => ['nullable', 'integer', 'exists:specializations,id'],
+            'images' => ['nullable', 'array', 'max:5'],
+            'images.*' => ['image', 'max:2048'],
         ];
     }
 }

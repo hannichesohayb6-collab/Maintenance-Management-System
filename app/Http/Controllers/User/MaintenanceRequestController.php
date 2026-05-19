@@ -30,7 +30,9 @@ class MaintenanceRequestController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('user/maintenance-requests/create');
+        return Inertia::render('user/maintenance-requests/create', [
+            'specializations' => \App\Models\Specialization::all(),
+        ]);
     }
 
     public function store(StoreMaintenanceRequestRequest $request)
@@ -43,6 +45,16 @@ class MaintenanceRequestController extends Controller
                 'user_id' => $user->id,
                 'status' => 'pending',
             ]);
+
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $image) {
+                    $path = $image->store('maintenance_requests', 'public');
+                    MaintenanceRequestImage::query()->create([
+                        'maintenance_request_id' => $maintenanceRequest->id,
+                        'image_path' => $path,
+                    ]);
+                }
+            }
 
             // Save the first status entry when the request is created.
             RequestStatusHistory::query()->create([

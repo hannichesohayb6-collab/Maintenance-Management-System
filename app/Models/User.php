@@ -86,4 +86,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(RequestStatusHistory::class, 'changed_by');
     }
+
+    public function specializations()
+    {
+        return $this->belongsToMany(Specialization::class);
+    }
 }

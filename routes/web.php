@@ -38,11 +38,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::get('{maintenanceRequest}', 'show')->name('show');
                 Route::post('{maintenanceRequest}/accept-offer', 'acceptOffer')->name('accept-offer');
                 Route::post('{maintenanceRequest}/reject-offer', 'rejectOffer')->name('reject-offer');
+                Route::post('{maintenanceRequest}/rate', [\App\Http\Controllers\RatingController::class, 'store'])->name('rate');
             });
     });
 
     Route::prefix('technician')->name('technician.')->middleware('role:technician')->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        Route::post('specializations', [\App\Http\Controllers\SpecializationController::class, 'store'])->name('specializations.store');
 
         Route::prefix('requests')
             ->name('requests.')
