@@ -1,16 +1,18 @@
 import { Head, router } from '@inertiajs/react';
+import { Mail, Phone, Power, UserRound, Users } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
+import { useInitials } from '@/hooks/use-initials';
 import { index, toggleActive } from '@/routes/admin/users';
 
 type AdminUser = {
@@ -19,6 +21,7 @@ type AdminUser = {
     email: string;
     phone: string;
     is_active: boolean;
+    avatar?: string;
 };
 
 type PaginatedUsers = {
@@ -26,6 +29,8 @@ type PaginatedUsers = {
 };
 
 export default function AdminUsersIndex({ users }: { users: PaginatedUsers }) {
+    const getInitials = useInitials();
+
     return (
         <>
             <Head title="Manage Users" />
@@ -38,48 +43,103 @@ export default function AdminUsersIndex({ users }: { users: PaginatedUsers }) {
 
                 <Card>
                     <CardContent className="pt-6">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Full Name</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Phone</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Action</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {users.data.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="text-center text-muted-foreground">
-                                            No users found.
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    users.data.map((user) => (
-                                        <TableRow key={user.id}>
-                                            <TableCell>{user.full_name}</TableCell>
-                                            <TableCell>{user.email}</TableCell>
-                                            <TableCell>{user.phone}</TableCell>
-                                            <TableCell>
-                                                <Badge variant={user.is_active ? 'secondary' : 'outline'}>
-                                                    {user.is_active ? 'Active' : 'Inactive'}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <Button
-                                                    size="sm"
-                                                    variant="outline"
-                                                    onClick={() => router.post(toggleActive(user.id))}
+                        <div className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+                            <Users className="size-4" />
+                            <span>
+                                {users.data.length} user account
+                                {users.data.length === 1 ? '' : 's'}
+                            </span>
+                        </div>
+                        {users.data.length === 0 ? (
+                            <Card className="border-dashed">
+                                <CardContent className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+                                    <Users className="size-10 text-muted-foreground" />
+                                    <div className="space-y-1">
+                                        <p className="font-medium">
+                                            No users found
+                                        </p>
+                                        <p className="text-sm text-muted-foreground">
+                                            User accounts will appear here as
+                                            cards.
+                                        </p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                                {users.data.map((user) => (
+                                    <Card key={user.id} className="gap-4">
+                                        <CardHeader className="gap-4 border-b bg-muted/20 pb-4">
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div className="flex items-center gap-3">
+                                                    <Avatar className="size-12 border border-border/60">
+                                                        <AvatarImage
+                                                            src={user.avatar}
+                                                            alt={user.full_name}
+                                                        />
+                                                        <AvatarFallback className="bg-neutral-200 font-medium text-black dark:bg-neutral-700 dark:text-white">
+                                                            {getInitials(
+                                                                user.full_name,
+                                                            )}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="space-y-1">
+                                                        <CardDescription className="flex items-center gap-2 text-xs tracking-[0.2em] uppercase">
+                                                            <UserRound className="size-3.5" />
+                                                            User Account
+                                                        </CardDescription>
+                                                        <CardTitle className="text-lg">
+                                                            {user.full_name}
+                                                        </CardTitle>
+                                                    </div>
+                                                </div>
+                                                <Badge
+                                                    variant={
+                                                        user.is_active
+                                                            ? 'secondary'
+                                                            : 'outline'
+                                                    }
                                                 >
-                                                    {user.is_active ? 'Deactivate' : 'Activate'}
-                                                </Button>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
+                                                    {user.is_active
+                                                        ? 'Active'
+                                                        : 'Inactive'}
+                                                </Badge>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="space-y-3">
+                                            <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 text-sm">
+                                                <Mail className="size-4 text-muted-foreground" />
+                                                <span className="truncate font-medium">
+                                                    {user.email}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 text-sm">
+                                                <Phone className="size-4 text-muted-foreground" />
+                                                <span className="font-medium">
+                                                    {user.phone}
+                                                </span>
+                                            </div>
+                                        </CardContent>
+                                        <CardFooter className="justify-end border-t pt-4">
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={() =>
+                                                    router.post(
+                                                        toggleActive(user.id),
+                                                    )
+                                                }
+                                            >
+                                                <Power className="size-4" />
+                                                {user.is_active
+                                                    ? 'Deactivate'
+                                                    : 'Activate'}
+                                            </Button>
+                                        </CardFooter>
+                                    </Card>
+                                ))}
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>

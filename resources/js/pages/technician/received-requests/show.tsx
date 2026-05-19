@@ -105,11 +105,11 @@ export default function TechnicianReceivedRequestShow({
 
     return (
         <>
-            <Head title={`Technician Request #${maintenanceRequest.id}`} />
+            <Head title={`Technician Request ${maintenanceRequest.title}`} />
 
             <div className="space-y-6 p-4">
                 <PageHeader
-                    title={`Request #${maintenanceRequest.id}`}
+                    title={`Request ${maintenanceRequest.title}`}
                     description="Review request details, send one offer, and update assigned work."
                 />
 
@@ -249,14 +249,14 @@ export default function TechnicianReceivedRequestShow({
     );
 }
 
-TechnicianReceivedRequestShow.layout = (props: { maintenanceRequest: { id: number } }) => ({
+TechnicianReceivedRequestShow.layout = (props: { maintenanceRequest: { id: number; title: string } }) => ({
     breadcrumbs: [
         {
             title: 'Available Requests',
             href: index(),
         },
         {
-            title: `Request #${props.maintenanceRequest.id}`,
+            title: `Request ${props.maintenanceRequest.title}`,
             href: show(props.maintenanceRequest.id),
         },
     ],

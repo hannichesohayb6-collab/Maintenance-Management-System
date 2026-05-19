@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 import { CheckCircle2, ClipboardList, Clock3, Wrench } from 'lucide-react';
+import { DashboardRadialStackedChart } from '@/components/shared/dashboard-radial-stacked-chart';
 import { PageHeader } from '@/components/shared/page-header';
 import { StatCard } from '@/components/shared/stat-card';
 import { Badge } from '@/components/ui/badge';
@@ -30,18 +31,67 @@ export default function UserDashboard({
                 />
 
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    <StatCard label="Total Requests" value={totalRequests} icon={ClipboardList} />
-                    <StatCard label="Pending Requests" value={pendingRequests} icon={Clock3} />
-                    <StatCard label="In Progress" value={inProgressRequests} icon={Wrench} />
-                    <StatCard label="Completed" value={completedRequests} icon={CheckCircle2} />
+                    <StatCard
+                        label="Total Requests"
+                        value={totalRequests}
+                        icon={ClipboardList}
+                    />
+                    <StatCard
+                        label="Pending Requests"
+                        value={pendingRequests}
+                        icon={Clock3}
+                    />
+                    <StatCard
+                        label="In Progress"
+                        value={inProgressRequests}
+                        icon={Wrench}
+                    />
+                    <StatCard
+                        label="Completed"
+                        value={completedRequests}
+                        icon={CheckCircle2}
+                    />
                 </div>
 
                 <Separator />
 
                 <div className="flex flex-wrap gap-2">
-                    <Badge variant="secondary">Pending: {pendingRequests}</Badge>
-                    <Badge variant="secondary">In Progress: {inProgressRequests}</Badge>
-                    <Badge variant="secondary">Completed: {completedRequests}</Badge>
+                    <Badge variant="secondary">
+                        Pending: {pendingRequests}
+                    </Badge>
+                    <Badge variant="secondary">
+                        In Progress: {inProgressRequests}
+                    </Badge>
+                    <Badge variant="secondary">
+                        Completed: {completedRequests}
+                    </Badge>
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-2">
+                    <DashboardRadialStackedChart
+                        title="Request Progress"
+                        description="Pending, active, and completed requests in your queue."
+                        centerLabel="Requests"
+                        items={[
+                            {
+                                key: 'pending',
+                                label: 'Pending',
+                                value: pendingRequests,
+                            },
+                            {
+                                key: 'inProgress',
+                                label: 'In Progress',
+                                value: inProgressRequests,
+                            },
+                            {
+                                key: 'completed',
+                                label: 'Completed',
+                                value: completedRequests,
+                            },
+                        ]}
+                        footerHighlight="Your request pipeline is easy to monitor"
+                        footerDescription="Compares pending, active, and completed requests with distinct chart colors."
+                    />
                 </div>
             </div>
         </>

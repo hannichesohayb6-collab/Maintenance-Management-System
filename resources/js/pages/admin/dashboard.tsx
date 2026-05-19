@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 import { CheckCircle2, ClipboardList, UserCog, Users } from 'lucide-react';
+import { DashboardRadialStackedChart } from '@/components/shared/dashboard-radial-stacked-chart';
 import { PageHeader } from '@/components/shared/page-header';
 import { StatCard } from '@/components/shared/stat-card';
 import { Badge } from '@/components/ui/badge';
@@ -30,18 +31,65 @@ export default function AdminDashboard({
                 />
 
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    <StatCard label="Total Users" value={totalUsers} icon={Users} />
-                    <StatCard label="Total Technicians" value={totalTechnicians} icon={UserCog} />
-                    <StatCard label="Total Requests" value={totalRequests} icon={ClipboardList} />
-                    <StatCard label="Completed Requests" value={completedRequests} icon={CheckCircle2} />
+                    <StatCard
+                        label="Total Users"
+                        value={totalUsers}
+                        icon={Users}
+                    />
+                    <StatCard
+                        label="Total Technicians"
+                        value={totalTechnicians}
+                        icon={UserCog}
+                    />
+                    <StatCard
+                        label="Total Requests"
+                        value={totalRequests}
+                        icon={ClipboardList}
+                    />
+                    <StatCard
+                        label="Completed Requests"
+                        value={completedRequests}
+                        icon={CheckCircle2}
+                    />
                 </div>
 
                 <Separator />
 
                 <div className="flex flex-wrap gap-2">
                     <Badge variant="secondary">Users: {totalUsers}</Badge>
-                    <Badge variant="secondary">Technicians: {totalTechnicians}</Badge>
-                    <Badge variant="secondary">Completed: {completedRequests}</Badge>
+                    <Badge variant="secondary">
+                        Technicians: {totalTechnicians}
+                    </Badge>
+                    <Badge variant="secondary">
+                        Completed: {completedRequests}
+                    </Badge>
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-2">
+                    <DashboardRadialStackedChart
+                        title="System Distribution"
+                        description="Clients, technicians, and requests across the platform."
+                        centerLabel="Records"
+                        items={[
+                            {
+                                key: 'clients',
+                                label: 'Clients',
+                                value: totalUsers,
+                            },
+                            {
+                                key: 'technicians',
+                                label: 'Technicians',
+                                value: totalTechnicians,
+                            },
+                            {
+                                key: 'requests',
+                                label: 'Requests',
+                                value: totalRequests,
+                            },
+                        ]}
+                        footerHighlight="Core platform counts are visible at a glance"
+                        footerDescription="Compares clients, technicians, and maintenance requests with distinct colors."
+                    />
                 </div>
             </div>
         </>

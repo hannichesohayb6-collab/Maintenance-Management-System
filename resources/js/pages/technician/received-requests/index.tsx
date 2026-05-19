@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
-import { RequestTable } from '@/components/maintenance/request-table';
+import { Inbox, Send } from 'lucide-react';
+import { RequestCardGrid } from '@/components/maintenance/request-card-grid';
 import { PageHeader } from '@/components/shared/page-header';
 import { Card, CardContent } from '@/components/ui/card';
 import { index, show } from '@/routes/technician/requests';
@@ -33,7 +34,18 @@ export default function TechnicianReceivedRequestsIndex({
 
                 <Card>
                     <CardContent className="pt-6">
-                        <RequestTable
+                        <div className="mb-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                            <span className="flex items-center gap-2">
+                                <Inbox className="size-4" />
+                                {requests.length} open request
+                                {requests.length === 1 ? '' : 's'}
+                            </span>
+                            <span className="flex items-center gap-2">
+                                <Send className="size-4" />
+                                Send one offer per request
+                            </span>
+                        </div>
+                        <RequestCardGrid
                             requests={requests}
                             showUser
                             emptyMessage="No requests available."

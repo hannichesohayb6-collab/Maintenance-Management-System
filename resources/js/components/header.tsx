@@ -1,38 +1,48 @@
 'use client';
 import { Link } from '@inertiajs/react';
+import { ClipboardList, Home, Info, Mail } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { MobileNav } from '@/components/mobile-nav';
 import { ThemeToggleButton } from '@/components/theme-toggle-button';
 import { Button } from '@/components/ui/button';
+import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useScroll } from '@/hooks/use-scroll';
 import { cn } from '@/lib/utils';
-import { about, contact, home, login, register } from '@/routes';
+import {
+    about,
+    availableRequests,
+    contact,
+    home,
+    login,
+    register,
+} from '@/routes';
 
 export const navLinks = [
     {
-        label: 'Overview',
-        href: `${home.url()}#overview`,
+        label: 'Home',
+        href: home.url(),
+        icon: Home,
     },
     {
-        label: 'Workflow',
-        href: `${home.url()}#workflow`,
-    },
-    {
-        label: 'Roles',
-        href: `${home.url()}#roles`,
-    },
-    {
-        label: 'About',
-        href: about(),
+        label: ' Requests',
+        href: availableRequests.url(),
+        icon: ClipboardList,
     },
     {
         label: 'Contact',
-        href: contact(),
+        href: contact.url(),
+        icon: Mail,
+    },
+    {
+        label: 'About',
+        href: about.url(),
+        icon: Info,
     },
 ];
 
 export function Header() {
     const scrolled = useScroll(10);
+    const { isCurrentUrl } = useCurrentUrl();
 
     return (
         <header
@@ -51,10 +61,7 @@ export function Header() {
                     },
                 )}
             >
-                <Link
-                    className="rounded-md p-2 hover:bg-muted dark:hover:bg-muted/50"
-                    href={home()}
-                >
+                <Link className="rounded-md p-2" href={home()}>
                     <div className="flex items-center">
                         <AppLogo />
                     </div>
@@ -62,14 +69,19 @@ export function Header() {
                 <div className="hidden items-center gap-2 md:flex">
                     <div className="flex items-center gap-1">
                         {navLinks.map((link) => (
-                            <Button
-                                asChild
+                            <Link
+                                className={cn(
+                                    'inline-flex h-8 items-center justify-center gap-2 rounded-full px-3 text-sm font-medium transition-colors',
+                                    isCurrentUrl(link.href)
+                                        ? 'bg-primary text-primary-foreground shadow-sm'
+                                        : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+                                )}
+                                href={link.href}
                                 key={link.label}
-                                size="sm"
-                                variant="ghost"
                             >
-                                <Link href={link.href}>{link.label}</Link>
-                            </Button>
+                                <link.icon className="size-4" />
+                                <span>{link.label}</span>
+                            </Link>
                         ))}
                     </div>
                     <ThemeToggleButton />
