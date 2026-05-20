@@ -5,7 +5,6 @@ use App\Http\Controllers\Admin\TechnicianManagementController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Public\AvailableRequestController;
-use App\Http\Controllers\Technician\MaintenanceRequestController as TechnicianMaintenanceRequestController;
 use App\Http\Controllers\Technician\OfferController as TechnicianOfferController;
 use App\Http\Controllers\User\MaintenanceRequestController as UserMaintenanceRequestController;
 use Illuminate\Support\Facades\Route;
