@@ -28,7 +28,7 @@ type DashboardRadialStackedChartProps = {
         { key: string; label: string; value: number },
     ];
     footerHighlight: string;
-    footerDescription: string;
+    footerDescription: string; 
 };
 
 export function DashboardRadialStackedChart({

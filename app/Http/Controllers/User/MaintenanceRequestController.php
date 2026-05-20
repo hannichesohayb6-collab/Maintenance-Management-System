@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Controller;    
 use App\Http\Requests\User\StoreMaintenanceRequestRequest;
 use App\Models\MaintenanceRequest;
 use App\Models\RequestStatusHistory;
+use App\Models\MaintenanceRequestImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
