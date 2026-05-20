@@ -15,6 +15,7 @@ type MaintenanceRequestRow = {
     assigned_technician?: {
         id: number;
         full_name: string;
+        rating?: number;
     } | null;
 };
 

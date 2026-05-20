@@ -1,5 +1,4 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { useState } from 'react';
 import { OfferCard } from '@/components/maintenance/offer-card';
 import { RequestDetailsCard } from '@/components/maintenance/request-details-card';
 import { StatusTimeline } from '@/components/maintenance/status-timeline';
@@ -60,18 +59,14 @@ export default function UserMaintenanceRequestShow({
         };
     }>;
 }) {
-    const [rating, setRating] = useState(5);
-    const [comment, setComment] = useState('');
+    const ratingForm = useForm({
+        rating: 5,
+        comment: '',
+    });
 
-    const submitRating = () => {
-        router.post(`/user/requests/${maintenanceRequest.id}/rate`, {
-            rating,
-            comment,
-        }, {
-            onSuccess: () => {
-                // Success handling
-            }
-        });
+    const submitRating = (event: React.FormEvent) => {
+        event.preventDefault();
+        ratingForm.post(`/user/requests/${maintenanceRequest.id}/rate`);
     };
 
     return (
@@ -110,35 +105,36 @@ export default function UserMaintenanceRequestShow({
                                     <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
                                     <Label className="text-base font-semibold">Rate Your Technician</Label>
                                 </div>
-                                <div className="grid gap-4">
+                                <form onSubmit={submitRating} className="grid gap-4">
                                     <div className="flex items-center gap-3">
                                         {[1, 2, 3, 4, 5].map((star) => (
                                             <Button
                                                 key={star}
+                                                type="button"
                                                 variant="ghost"
                                                 size="icon"
-                                                className={`h-8 w-8 ${rating >= star ? 'text-yellow-500' : 'text-muted-foreground'}`}
-                                                onClick={() => setRating(star)}
+                                                className={`h-8 w-8 ${ratingForm.data.rating >= star ? 'text-yellow-500' : 'text-muted-foreground'}`}
+                                                onClick={() => ratingForm.setData('rating', star)}
                                             >
-                                                <Star className={`h-5 w-5 ${rating >= star ? 'fill-yellow-500' : ''}`} />
+                                                <Star className={`h-5 w-5 ${ratingForm.data.rating >= star ? 'fill-yellow-500' : ''}`} />
                                             </Button>
                                         ))}
-                                        <span className="text-sm font-medium text-muted-foreground">{rating} / 5</span>
+                                        <span className="text-sm font-medium text-muted-foreground">{ratingForm.data.rating} / 5</span>
                                     </div>
                                     <div className="grid gap-2">
                                         <Label htmlFor="comment">Comments (Optional)</Label>
                                         <Textarea
                                             id="comment"
-                                            value={comment}
-                                            onChange={(e) => setComment(e.target.value)}
+                                            value={ratingForm.data.comment}
+                                            onChange={(e) => ratingForm.setData('comment', e.target.value)}
                                             placeholder="How was the service?"
                                             rows={3}
                                         />
                                     </div>
-                                    <Button onClick={submitRating} className="w-fit">
-                                        Submit Rating
+                                    <Button type="submit" disabled={ratingForm.processing} className="w-fit">
+                                        {ratingForm.processing ? 'Submitting...' : 'Submit Rating'}
                                     </Button>
-                                </div>
+                                </form>
                             </div>
                         )}
                     </div>
@@ -188,7 +184,7 @@ export default function UserMaintenanceRequestShow({
     );
 }
 
-UserMaintenanceRequestShow.layout = (props: { maintenanceRequest: { id: number , title: string } }) => ({
+UserMaintenanceRequestShow.layout = (props: { maintenanceRequest: { id: number, title: string } }) => ({
     breadcrumbs: [
         {
             title: 'My Requests',

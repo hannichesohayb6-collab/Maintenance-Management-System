@@ -6,13 +6,19 @@ use App\Models\MaintenanceRequest;
 use App\Models\Rating;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class RatingController extends Controller
 {
     public function store(Request $request, MaintenanceRequest $maintenanceRequest)
     {
-        abort_unless($maintenanceRequest->user_id === Auth::id(), 403);
-        abort_unless($maintenanceRequest->status === 'completed', 403);
+        if ($maintenanceRequest->user_id !== Auth::id()) {
+            return back()->withErrors(['message' => 'Unauthorized.']);
+        }
+
+        if ($maintenanceRequest->status !== 'completed') {
+            return back()->withErrors(['message' => 'You can only rate completed requests.']);
+        }
 
         $validated = $request->validate([
             'rating' => ['required', 'integer', 'min:1', 'max:5'],
@@ -21,7 +27,7 @@ class RatingController extends Controller
 
         $technicianId = $maintenanceRequest->assigned_technician_id;
         if (!$technicianId) {
-            return response()->json(['message' => 'No technician assigned to this request.'], 422);
+            return back()->withErrors(['message' => 'No technician assigned to this request.']);
         }
 
         Rating::updateOrCreate(
@@ -34,7 +40,10 @@ class RatingController extends Controller
             ]
         );
 
-        return redirect()->back();
+        return back()->with('toast', [
+            'type' => 'success',
+            'message' => 'Rating submitted successfully',
+        ]);
     }
 }
 

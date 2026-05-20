@@ -101,7 +101,7 @@ class User extends Authenticatable
     protected function rating(): Attribute
     {
         return Attribute::get(fn () =>
-            $this->ratings()->avg('rating') ?? 0
+            (float) ($this->ratings()->avg('rating') ?? 0)
         );
     }
 }
