@@ -1,11 +1,13 @@
 import { RequestPriorityBadge } from '@/components/maintenance/request-priority-badge';
 import { RequestStatusBadge } from '@/components/maintenance/request-status-badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Star } from 'lucide-react';
 
 type Person = {
     full_name: string;
     email?: string;
     phone?: string;
+    rating?: number;
 } | null | undefined;
 
 type RequestDetailsCardProps = {
@@ -70,7 +72,15 @@ export function RequestDetailsCard({
                 {showTechnician && (
                     <div className="space-y-1">
                         <p className="text-sm text-muted-foreground">Technician</p>
-                        <p>{technician?.full_name ?? 'Not assigned'}</p>
+                        <div className="flex items-center gap-2">
+                            <p>{technician?.full_name ?? 'Not assigned'}</p>
+                            {technician?.rating && technician.rating > 0 && (
+                                <div className="flex items-center gap-1 text-yellow-500">
+                                    <Star className="size-3 fill-yellow-500" />
+                                    <span className="text-xs font-medium">{technician.rating.toFixed(1)}</span>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
 

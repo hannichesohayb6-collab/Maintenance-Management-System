@@ -6,6 +6,7 @@ import {
     Eye,
     ShieldAlert,
     UserRoundCog,
+    Star,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { RequestPriorityBadge } from '@/components/maintenance/request-priority-badge';
@@ -33,7 +34,9 @@ type BaseRequestCard = {
         avatar?: string;
     } | null;
     assigned_technician?: {
+        id: number;
         full_name: string;
+        rating?: number;
         avatar?: string;
     } | null;
 };
@@ -65,6 +68,7 @@ function RequestPersonItem({
     label,
     person,
     fallbackText,
+    rating,
 }: {
     icon: typeof CalendarDays;
     label: string;
@@ -73,6 +77,7 @@ function RequestPersonItem({
         avatar?: string;
     } | null;
     fallbackText: string;
+    rating?: number;
 }) {
     const getInitials = useInitials();
     const name = person?.full_name ?? fallbackText;
@@ -90,7 +95,15 @@ function RequestPersonItem({
                     <Icon className="size-3.5" />
                     {label}
                 </p>
-                <p className="truncate font-medium text-foreground">{name}</p>
+                <div className="flex items-center gap-2">
+                    <p className="truncate font-medium text-foreground">{name}</p>
+                    {rating !== undefined && rating > 0 && (
+                        <div className="flex items-center gap-1 text-yellow-500">
+                            <Star className="size-3 fill-yellow-500" />
+                            <span className="text-xs font-medium">{rating.toFixed(1)}</span>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
@@ -175,6 +188,7 @@ export function RequestCardGrid<TRequest extends BaseRequestCard>({
                                 icon={UserRoundCog}
                                 label="Technician"
                                 person={request.assigned_technician}
+                                rating={request.assigned_technician?.rating}
                                 fallbackText="Not assigned"
                             />
                         )}

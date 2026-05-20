@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Public\AvailableRequestController;
 use App\Http\Controllers\Technician\OfferController as TechnicianOfferController;
 use App\Http\Controllers\User\MaintenanceRequestController as UserMaintenanceRequestController;
+use App\Http\Controllers\Technician\MaintenanceRequestController as TechnicianMaintenanceRequestController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 

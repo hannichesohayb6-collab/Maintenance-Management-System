@@ -19,7 +19,7 @@ class MaintenanceRequestController extends Controller
         $user = $request->user();
 
         $requests = MaintenanceRequest::query()
-            ->with(['assignedTechnician:id,full_name'])
+            ->with(['assignedTechnician'])
             ->where('user_id', $user->id)
             ->latest()
             ->get();

@@ -34,7 +34,7 @@ class RatingController extends Controller
             ]
         );
 
-        return response()->json(['message' => 'Rating submitted successfully']);
+        return redirect()->back();
     }
 }
 
